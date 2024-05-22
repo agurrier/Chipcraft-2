@@ -47,41 +47,46 @@
    |calc
       @0
          $val2[7:0] = {4'b0000, *ui_in[3:0]};
-         $op[1:0] = *ui_in[5:4];
+         $op[2:0] = *ui_in[6:4];
          $equals_in = *ui_in[7];
          
       @1
          $reset = *reset;
-
-         //$val1[7:0] = {3'b0, $rand1[4:0]};
-         //$val2[7:0] = {5'b0, $rand1[2:0]};
-         //$val2[7:0] = 8'b00000001;
-         //$op[1:0] = 0;
-         $sum[7:0] = $val1[7:0] + $val2[7:0];
-         $diff[7:0] = $val1[7:0] - $val2[7:0];
-         $prod[7:0] = $val1[7:0] * $val2[7:0];
-         $quot[7:0] = $val1[7:0] / $val2[7:0];
+         $valid = $equals_in && !(>>1$equals_in);
+      ?$valid
+         @1
+            $sum[7:0] = $val1[7:0] + $val2[7:0];
+            $diff[7:0] = $val1[7:0] - $val2[7:0];
+            $prod[7:0] = $val1[7:0] * $val2[7:0];
+            $quot[7:0] = $val1[7:0] / $val2[7:0];
+            $val1[7:0] = (>>2$out);
+         
+      @2
          $out[7:0] = $reset
                                        ? 8'b0 :
                      !$valid
                                        ? >>1$out:
-                     $op[1:0] == 2'd0
+                     $op[2:0] == 3'd0
                                        ? $sum :
-                     $op[1:0] == 2'd1
+                     $op[2:0] == 3'd1
                                        ? $diff :
-                     $op[1:0] == 2'd2
+                     $op[2:0] == 3'd2
                                        ? $prod :
-                     $op[1:0] == 2'd3
+                     $op[2:0] == 3'd3
                                        ? $quot :
+                     $op[2:0] == 3'd4
+                                       ? >>1$mem :
                      //default
-                                       0;
-         $val1[7:0] = (>>1$out);
-         
-         
-         $valid = $equals_in && !(>>1$equals_in);
-         
-         
-         
+                                       >>1$out;
+         $mem[7:0] = $reset
+                                       ? 8'b0 :
+                     !$valid
+                                       ? >>1$mem :
+                     $op[2:0] == 3'd5
+                                       ? $val1 :
+                     //default
+                                       >>1$mem;
+      @3
          $digit[3:0] = $out[3:0];
          *uo_out[7:0] = $digit[3:0] == 4'b0000
                                           ? 8'b00111111 :
@@ -122,7 +127,7 @@
    
    
 
-   m5+cal_viz(@1, m5_if(m5_in_fpga, /fpga, /top))
+   m5+cal_viz(@2, m5_if(m5_in_fpga, /fpga, /top))
    
    // Connect Tiny Tapeout outputs. Note that uio_ outputs are not available in the Tiny-Tapeout-3-based FPGA boards.
    
@@ -151,7 +156,7 @@ module top(input logic clk, input logic reset, input logic [31:0] cyc_cnt, outpu
    // Instantiate the Tiny Tapeout module.
    m5_user_module_name tt(.*);
    
-   assign passed = top.cyc_cnt > 80;
+   assign passed = top.cyc_cnt > 400;
    assign failed = 1'b0;
 endmodule
 

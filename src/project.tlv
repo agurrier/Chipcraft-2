@@ -42,10 +42,17 @@
    
    |color
       @0
-         //$reset = *reset;
+         $reset = *reset;
          
          $in[7:0] = *ui_in[7:0];
-         $fb[0] = $in[0] ? 1'b1 : >>1$fb[0];
+         $fb[0] = $reset
+                        ? 1'b0 :
+                  $in[0] 
+                        ? 1'b1 : 
+                  $in[1]
+                        ? 1'b0 :
+                  //default      
+                        >>1$fb[0];
          
          //$red[2:0] = 3'b000;
          //$yellow[2:0] = 3'b001;

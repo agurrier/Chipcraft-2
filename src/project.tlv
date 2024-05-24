@@ -67,7 +67,7 @@
             ADD x10, x14, x0            # Store final result to register a0 so that it can be read by main program
             SW x10, 4(x0)
             LW x15, 4(x0)
-            JAL x5, -20
+            JAL x5, 0
       '])
    })
    

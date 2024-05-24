@@ -42,30 +42,30 @@
    
    |color
       @0
-         $reset = *reset;
+         //$reset = *reset;
          
          $in[7:0] = *ui_in[7:0];
          *uo_out[7:0] = $in[7:0];
          
-         $red[2:0] = 3'b000;
-         $yellow[2:0] = 3'b001;
-         $green[2:0] = 3'b010;
-         $blue[2:0] = 3'b011;
-         $orange[2:0] = 3'b100;
-         $black[2:0] = 3'b101;
-         $white[2:0] = 3'b110;
-         $purple[2:0] = 3'b100;
+         //$red[2:0] = 3'b000;
+         //$yellow[2:0] = 3'b001;
+         //$green[2:0] = 3'b010;
+         //$blue[2:0] = 3'b011;
+         //$orange[2:0] = 3'b100;
+        // $black[2:0] = 3'b101;
+        /// $white[2:0] = 3'b110;
+      //   $purple[2:0] = 3'b100;
          
-      @1
-         $color1[2:0] = $in[7:0] == 8'b 0000_0001 ? $red : 
-                        $in[7:0] == 8'b 0000_0010 ? $yellow : 
-                        $in[7:0] == 8'b 0000_0100 ? $green : 
-                        $in[7:0] == 8'b 0000_1000 ? $blue : 
-                        $in[7:0] == 8'b 0001_0000 ? $orange : 
-                        $in[7:0] == 8'b 0010_0000 ? $black : 
-                        $in[7:0] == 8'b 0100_0000 ? $white : 
+      //@1
+         //$color1[2:0] = $in[7:0] == 8'b 0000_0001 ? $red : 
+           //             $in[7:0] == 8'b 0000_0010 ? $yellow : 
+             //           $in[7:0] == 8'b 0000_0100 ? $green : 
+               //         $in[7:0] == 8'b 0000_1000 ? $blue : 
+                 //       $in[7:0] == 8'b 0001_0000 ? $orange : 
+                   //     $in[7:0] == 8'b 0010_0000 ? $black : 
+                     //   $in[7:0] == 8'b 0100_0000 ? $white : 
                         //default
-                                $purple ; 
+                      //          $purple ; 
    
    // Note that pipesignals assigned here can be found under /fpga_pins/fpga.
    

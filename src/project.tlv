@@ -305,7 +305,7 @@
       
    // Assert these to end simulation (before Makerchip cycle limit).
    // Note, for Makerchip simulation these are passed in uo_out to top-level module's passed/failed signals.
-   *passed = *top.cyc_cnt > 400;
+   //*passed = *top.cyc_cnt > 400;
    *failed = 1'b0;
    
    // Connect Tiny Tapeout outputs. Note that uio_ outputs are not available in the Tiny-Tapeout-3-based FPGA boards.

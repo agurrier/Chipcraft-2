@@ -39,56 +39,19 @@
 
 
 \TLV my_design()
-   
+
    |color
       @0
-         $reset = *reset;
+         //$reset = *reset;
          
-         $in[7:0] = *ui_in[7:0];
-         //$fb[7:0] = 8'b0;
-         $fb[7:0] = $reset
-                                ? 8'b0 :
-                    $in[7:0] == 8'b00000001 
-                                ? 8'b00000001 : 
-                    $in[7:0] == 8'b00000010 
-                                ? 8'b00000010 : 
-                    $in[7:0] == 8'b00000100 
-                                ? 8'b00000100 : 
-                    $in[7:0] == 8'b00001000 
-                                ? 8'b00001000 : 
-                    $in[7:0] == 8'b00010000 
-                                ? 8'b00010000 : 
-                    $in[7:0] == 8'b00100000 
-                                ? 8'b00100000 : 
-                    $in[7:0] == 8'b01000000 
-                                ? 8'b01000000 : 
-                    $in[7:0] == 8'b10000000 
-                                ? 8'b10000000 : 
-                  //default      
-                        >>2$fb[7:0];
+         $in[0] = *ui_in[0];
          
-         
-         //$red[2:0] = 3'b000;
-         //$yellow[2:0] = 3'b001;
-         //$green[2:0] = 3'b010;
-         //$blue[2:0] = 3'b011;
-         //$orange[2:0] = 3'b100;
-           // $black[2:0] = 3'b101;
-           /// $white[2:0] = 3'b110;
-         //   $purple[2:0] = 3'b100;
-         
+         $counter[2:0] = >>1$counter + 1;
+      @1
+         ?$in[0]
+            $ans1[2:0] = $counter[2:0];
       @2
-         *uo_out[7:0] = $fb[7:0];
-         
-         //$color1[2:0] = $in[7:0] == 8'b 0000_0001 ? $red : 
-           //             $in[7:0] == 8'b 0000_0010 ? $yellow : 
-             //           $in[7:0] == 8'b 0000_0100 ? $green : 
-               //         $in[7:0] == 8'b 0000_1000 ? $blue : 
-                 //       $in[7:0] == 8'b 0001_0000 ? $orange : 
-                   //     $in[7:0] == 8'b 0010_0000 ? $black : 
-                     //   $in[7:0] == 8'b 0100_0000 ? $white : 
-                        //default
-                      //          $purple ; 
+         *uo_out[2:0] = $ans1[2:0];
    
    // Note that pipesignals assigned here can be found under /fpga_pins/fpga.
    
@@ -96,7 +59,7 @@
    
    
    // Connect Tiny Tapeout outputs. Note that uio_ outputs are not available in the Tiny-Tapeout-3-based FPGA boards.
-   //*uo_out = 8'b0;
+   *uo_out = 8'b0;
    m5_if_neq(m5_target, FPGA, ['*uio_out = 8'b0;'])
    m5_if_neq(m5_target, FPGA, ['*uio_oe = 8'b0;'])
 

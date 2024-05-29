@@ -83,8 +83,6 @@
                            >>1$in_release;
          //MODULE 2: GET GUESS
          
-         //MODULE 2: GET GUESS
-         
          $valid = ($in_b2[7:0] != 8'b0) && $got_ans;
          $dvalid = >>1$valid;
          $ndvalid = !$dvalid;
@@ -247,8 +245,8 @@
          $ndcnt1_done = !$dcnt1_done;
          $newround = $ndcnt1_done && $cnt1_done && $round != 4'b1011;
          
-         $lose = ($round == 4'b1011) && (>>1$light_code != 8'b11111111);
-         $win = (>>1$light_code == 8'b11111111);
+         $lose = ($round == 4'b1011) && ({>>1$light_color[3:0], >>1$light_pos[3:0]} != 8'b11111111);
+         $win = ({>>1$light_color[3:0], >>1$light_pos[3:0]} == 8'b11111111);
          
          $lose_cnt[21:0] = >>1$lose_cnt + 1;
          $win_cnt[20:0] = >>1$win_cnt + 1;

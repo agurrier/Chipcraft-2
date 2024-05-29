@@ -160,9 +160,9 @@
          $light_code[7:0] = $reset
                                        ? 8'b0 :
                               $lose
-                                       ? $lose_light :
+                                       ? >>1$lose_light :
                               $win
-                                       ? $win_light :
+                                       ? >>1$win_light :
                               //default
                                        {$light_color[3:0], $light_pos[3:0]};
          

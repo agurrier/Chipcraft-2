@@ -288,7 +288,7 @@
                              // default
                                                             >>1$lose_light ;
                                                           
-         $win_light[7:0] = $reset
+         $win_light[7:0] = $win && !>>1$win
                                                           ? 8'b00000001 :
                              >>1$win_light == 8'b10000000 && >>1$win_cnt == 21'b111111111111111111111
                                                           ? 8'b00000001 :

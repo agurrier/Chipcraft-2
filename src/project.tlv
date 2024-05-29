@@ -39,19 +39,200 @@
 
 
 \TLV my_design()
-
+   
    |color
       @0
-         //$reset = *reset;
+         $in[7:0] = *ui_in[7:0];
+         $in_b2[7:0] = >>2$in;
          
-         $in[0] = *ui_in[0];
+         //MODULE 1: GET ANSWER
+         $reset = *reset;
          
-         $counter[2:0] = >>1$counter + 1;
+         $counter[11:0] = >>1$counter + 1;
+         
       @1
-         ?$in[0]
-            $ans1[2:0] = $counter[2:0];
-      @2
-         *uo_out[2:0] = $ans1[2:0];
+         $valid1 = $in_b2[7:0] != 8'b0;
+         
+         $ans[11:0] = $in_pushed && (>>1$got_ans == 1'b0) && >>1$no_repeat 
+                                                            ? $counter[11:0] :
+                                                              $ans[11:0] ;
+         $got_ans = $ans[11:0] != 12'b0;
+         
+         $no_repeat = !($counter[11:9] == $counter[8:6] || 
+                                 $counter[11:9] == $counter[5:3] || 
+                                 $counter[11:9] == $counter[2:0] || 
+                                 $counter[8:6] == $counter[5:3] || 
+                                 $counter[8:6] == $counter[2:0] || 
+                                 $counter[5:3] == $counter[2:0]) ;
+         $in_pushed = $reset 
+                           ? 1'b0 :
+                      $valid1
+                           ? 1'b1 :
+                     //default
+                           >>1$in_pushed;
+         $in_release = $reset 
+                           ? 1'b0 :
+                      !$valid1 && $in_pushed
+                           ? 1'b1 :
+                     //default
+                           >>1$in_release;
+         //MODULE 2: GET GUESS
+         
+         $valid = ($in_b2[7:0] != 8'b0) && $got_ans;
+         $dvalid = >>1$valid;
+         $ndvalid = !$dvalid;
+         $in_push = $ndvalid && $valid;
+         
+         $red[2:0] = 3'b000;
+         $yellow[2:0] = 3'b001;
+         $green[2:0] = 3'b010;
+         $blue[2:0] = 3'b011;
+         $orange[2:0] = 3'b100;
+         $black[2:0] = 3'b101;
+         $white[2:0] = 3'b110;
+         $purple[2:0] = 3'b111;
+         
+         $guess[2:0] = $in_b2 == 8'b00000001 ? $red :
+                       $in_b2 == 8'b00000010 ? $yellow :
+                       $in_b2 == 8'b00000100 ? $green :
+                       $in_b2 == 8'b00001000 ? $blue :
+                       $in_b2 == 8'b00010000 ? $orange :
+                       $in_b2 == 8'b00100000 ? $black :
+                       $in_b2 == 8'b01000000 ? $white :
+                       //8'b10000000 ? 
+                                     $purple;
+         $color_guess[11:0] = {$temp4, $temp3, $temp2, $temp1};
+         
+         $color_cnt[2:0] = $reset
+                                    ? 3'b0 :
+                           >>1$newround
+                                   ? 3'b0 :
+                       $in_push && >>1$color_cnt == 3'b000 
+                                    ? >>1$color_cnt + 1 :
+                       $in_push && >>1$color_cnt == 3'b001 && ($guess[2:0] != >>1$color_guess[2:0])
+                                    ? >>1$color_cnt + 1 :
+                       $in_push && >>1$color_cnt == 3'b010 && ($guess[2:0] != >>1$color_guess[2:0]) && ($guess[2:0] != >>1$color_guess[5:3])
+                                    ? >>1$color_cnt + 1 :
+                       $in_push && >>1$color_cnt == 3'b011 && ($guess[2:0] != >>1$color_guess[2:0]) && ($guess[2:0] != >>1$color_guess[5:3]) && ($guess[2:0] != >>1$color_guess[8:6])
+                                    ? >>1$color_cnt + 1 :
+                             //default
+                                    >>1$color_cnt ;
+         $got_guess = $color_cnt[2:0] == 3'b100;
+         
+         $dgot_guess = >>1$got_guess;
+         $ndgot_guess = !$dgot_guess;
+         $got_guess_edge = $ndgot_guess && $got_guess;
+         
+         
+         $temp1[2:0] = $reset
+                                    ? 3'b0 :
+                       $in_push && >>1$color_cnt == 3'b000 
+                                    ? $guess[2:0] :
+                             //default
+                                    >>1$color_guess[2:0] ;
+         $temp2[2:0] = $reset
+                                    ? 3'b0 :
+                       $in_push && >>1$color_cnt == 3'b001 
+                                    ? $guess[2:0] :
+                             //default
+                                    >>1$color_guess[5:3] ;
+         $temp3[2:0] = $reset
+                                    ? 3'b0 :
+                       $in_push && >>1$color_cnt == 3'b010 
+                                    ? $guess[2:0] :
+                             //default
+                                    >>1$color_guess[8:6] ;
+         $temp4[2:0] = $reset
+                                    ? 3'b0 :
+                       $in_push && >>1$color_cnt == 3'b011 
+                                    ? $guess[2:0] :
+                             //default
+                                    >>1$color_guess[11:9] ;
+         // MODULE 3: GET RESULT
+         
+         $get_results_valid = $got_ans && $dgot_guess;
+         
+         $light_code[7:0] = {$light_color[3:0], $light_pos[3:0]};
+         
+         $light_pos[3:0] = $reset  ? 4'b0000 :
+                           $light_pos_cnt == 3'b001 ? 4'b0001 :
+                           $light_pos_cnt == 3'b010 ? 4'b0011 :
+                           $light_pos_cnt == 3'b011 ? 4'b0111 :
+                           $light_pos_cnt == 3'b100 ? 4'b1111 :
+                           //default
+                                                      4'b0000 ;
+         $light_color[3:0] = $reset  ? 4'b0000 :
+                           $light_color_cnt == 3'b001 ? 4'b0001 :
+                           $light_color_cnt == 3'b010 ? 4'b0011 :
+                           $light_color_cnt == 3'b011 ? 4'b0111 :
+                           $light_color_cnt == 3'b100 ? 4'b1111 :
+                           //default
+                                                      4'b0000 ;
+         
+         $light_pos_cnt[2:0] = $reset
+                                       ? 3'b0 :
+                               $got_guess_edge
+                                       ? 3'b0 :
+                          $color_guess[2:0] == $ans[2:0] && >>1$cnt1 == 3'b000 && $get_results_valid
+                                                ? >>1$light_pos_cnt +1 :
+                          $color_guess[5:3] == $ans[5:3] && >>1$cnt1 == 3'b001 && $get_results_valid
+                                                ? >>1$light_pos_cnt +1 :
+                          $color_guess[8:6] == $ans[8:6] && >>1$cnt1 == 3'b010 && $get_results_valid
+                                                ? >>1$light_pos_cnt +1 :
+                          $color_guess[11:9] == $ans[11:9] && >>1$cnt1 == 3'b011 && $get_results_valid
+                                                ? >>1$light_pos_cnt +1 :
+                          //default 
+                                                >>1$light_pos_cnt ;
+         $cnt1[2:0] = $reset
+                                   ? 3'b0 :
+                      >>1$newround
+                                   ? 3'b0 :
+                 >>1$cnt1[2:0] != 3'b100 && $get_results_valid
+                                   ? >>1$cnt1[2:0] +1:
+                 //default
+                                    >>1$cnt1[2:0];
+         
+         $light_color_cnt[2:0] = $reset
+                                       ? 3'b0 :
+                                 $got_guess_edge
+                                       ? 3'b0 :
+                          ($color_guess[2:0] == $ans[2:0] || 
+                           $color_guess[2:0] == $ans[5:3] || 
+                           $color_guess[2:0] == $ans[8:6] || 
+                           $color_guess[2:0] == $ans[11:9]) && 
+                                               >>1$cnt1 == 3'b000 && $get_results_valid
+                                                ? >>1$light_color_cnt +1 :
+                          ($color_guess[5:3] == $ans[2:0] || 
+                           $color_guess[5:3] == $ans[5:3] || 
+                           $color_guess[5:3] == $ans[8:6] || 
+                           $color_guess[5:3] == $ans[11:9]) && 
+                                               >>1$cnt1 == 3'b001 && $get_results_valid
+                                                ? >>1$light_color_cnt +1 :
+                          ($color_guess[8:6] == $ans[2:0] || 
+                           $color_guess[8:6] == $ans[5:3] || 
+                           $color_guess[8:6] == $ans[8:6] || 
+                           $color_guess[8:6] == $ans[11:9]) && 
+                                               >>1$cnt1 == 3'b010 && $get_results_valid
+                                                ? >>1$light_color_cnt +1 :
+                          ($color_guess[11:9] == $ans[2:0] || 
+                           $color_guess[11:9] == $ans[5:3] || 
+                           $color_guess[11:9] == $ans[8:6] || 
+                           $color_guess[11:9] == $ans[11:9]) && 
+                                               >>1$cnt1 == 3'b011 && $get_results_valid
+                                                ? >>1$light_color_cnt +1 :
+                          //default 
+                                                >>1$light_color_cnt ;
+         
+         $round[3:0] = $reset ? 4'b0 :
+                  $cnt1 == 3'b100 ? >>1$round + 1:
+                  //default
+                                    >>1$round;
+         $cnt1_done = $cnt1 == 3'b100;
+         $dcnt1_done = >>1$cnt1_done;
+         $ndcnt1_done = !$dcnt1_done;
+         $newround = $ndcnt1_done && $cnt1_done && $round != 4'b1011;
+         
+         *uo_out = $light_code;
    
    // Note that pipesignals assigned here can be found under /fpga_pins/fpga.
    
@@ -59,7 +240,7 @@
    
    
    // Connect Tiny Tapeout outputs. Note that uio_ outputs are not available in the Tiny-Tapeout-3-based FPGA boards.
-   *uo_out = 8'b0;
+   //*uo_out = 8'b0;
    m5_if_neq(m5_target, FPGA, ['*uio_out = 8'b0;'])
    m5_if_neq(m5_target, FPGA, ['*uio_oe = 8'b0;'])
 
@@ -85,7 +266,7 @@ module top(input logic clk, input logic reset, input logic [31:0] cyc_cnt, outpu
    m5_if_neq(m5_target, FPGA, ['logic [7:0] uio_in, uio_out, uio_oe;'])
    logic [31:0] r;  // a random value
    always @(posedge clk) r <= m5_if_defined_as(MAKERCHIP, 1, ['$urandom()'], ['0']);
-   assign ui_in = r[7:0];
+   //assign ui_in = r[7:0];
    m5_if_neq(m5_target, FPGA, ['assign uio_in = 8'b0;'])
    logic ena = 1'b0;
    logic rst_n = ! reset;
@@ -96,19 +277,335 @@ module top(input logic clk, input logic reset, input logic [31:0] cyc_cnt, outpu
    // BE SURE TO DRIVE THESE ON THE B-PHASE OF THE CLOCK (ODD STEPS).
    // Driving on the rising clock edge creates a race with the clock that has unpredictable simulation behavior.
    initial begin
+      /*
+      $guess[2:0] = $in == 8'b00000001 ? $red :
+                       $in == 8'b00000010 ? $yellow :
+                       $in == 8'b00000100 ? $green :
+                       $in == 8'b00001000 ? $blue :
+                       $in == 8'b00010000 ? $orange :
+                       $in == 8'b00100000 ? $black :
+                       $in == 8'b01000000 ? $white :
+                       //8'b10000000 ? 
+                                     $purple;
+       
       #1  // Drive inputs on the B-phase.
          ui_in = 8'h0;
       #10 // Step 5 cycles, past reset.
-         ui_in = 8'hFF;
-      // ...etc.
+         ui_in = 8'h0;
+      #28
+      #2
+      	ui_in = 8'b10000000;
+      #6
+      	ui_in = 8'h0;
+      #200
+      #2
+      	ui_in = 8'b10000000;
+      #6
+      	ui_in = 8'h0;
+      #32
+      #2
+      	ui_in = 8'b01000000;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00100000;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00100000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b01000000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00000001;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00010000;
+      #6
+      	ui_in = 8'h0;
+      #32
+      #2
+      	ui_in = 8'b00010000;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00000010;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00010000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00001000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00100000;
+      #2
+      	ui_in = 8'h0;
+      #20
+      #2
+      	ui_in = 8'b10000000;
+      #6
+      	ui_in = 8'h0;
+      #32
+      #2
+      	ui_in = 8'b01000000;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00100000;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00100000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b01000000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00000001;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00010000;
+      #6
+      	ui_in = 8'h0;
+      #32
+      #2
+      	ui_in = 8'b00010000;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00000010;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00010000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00001000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00100000;
+      #2
+      	ui_in = 8'h0;
+      #20
+      #2
+      	ui_in = 8'b10000000;
+      #6
+      	ui_in = 8'h0;
+      #32
+      #2
+      	ui_in = 8'b01000000;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00100000;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00100000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b01000000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00000001;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00010000;
+      #6
+      	ui_in = 8'h0;
+      #32
+      #2
+      	ui_in = 8'b00010000;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00000010;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00010000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00001000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00100000;
+      #2
+      	ui_in = 8'h0;
+      #20
+      #2
+      	ui_in = 8'b10000000;
+      #6
+      	ui_in = 8'h0;
+      #32
+      #2
+      	ui_in = 8'b01000000;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00100000;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00100000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b01000000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00000001;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00010000;
+      #6
+      	ui_in = 8'h0;
+      #32
+      #2
+      	ui_in = 8'b00010000;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00000010;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00010000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00001000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00100000;
+      #2
+      	ui_in = 8'h0;
+      #20
+      #2
+      	ui_in = 8'b10000000;
+      #6
+      	ui_in = 8'h0;
+      #32
+      #2
+      	ui_in = 8'b01000000;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00100000;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00100000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b01000000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00000001;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00010000;
+      #6
+      	ui_in = 8'h0;
+      #32
+      #2
+      	ui_in = 8'b00010000;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00000010;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00010000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00001000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00100000;
+      #2
+      	ui_in = 8'h0;
+      
    end
    */
 
    // Instantiate the Tiny Tapeout module.
    m5_user_module_name tt(.*);
    
-   assign passed = top.cyc_cnt > 80;
-   assign failed = 1'b0;
+   assign passed = top.cyc_cnt > 1500 || !clk;
+   assign failed = 1'b0 || !clk;
 endmodule
 
 

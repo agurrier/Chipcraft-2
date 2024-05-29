@@ -272,7 +272,7 @@
                                                           >>1$win_light ;
          */
          $lose_cnt[21:0] = >>1$lose_cnt + 1;
-         $win_cnt[19:0] = >>1$win_cnt + 1;
+         $win_cnt[18:0] = >>1$win_cnt + 1;
          
          $lose_light[7:0] = $lose && !>>1$lose
                                                           ? 8'b00000000 :
@@ -290,9 +290,9 @@
                                                           
          $win_light[7:0] = $win && !>>1$win
                                                           ? 8'b00000001 :
-                             >>1$win_light == 8'b10000000 && >>1$win_cnt == 20'b111111111111111111111
+                             >>1$win_light == 8'b10000000 && >>1$win_cnt == 19'b111111111111111111111
                                                           ? 8'b00000001 :
-                             >>1$win_cnt == 20'b111111111111111111111
+                             >>1$win_cnt == 19'b111111111111111111111
                                                           ? >>1$win_light << 1 :
                              // default
                                                           >>1$win_light ;

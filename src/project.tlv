@@ -286,7 +286,8 @@
                                                              !>>1$lose_light[1],
                                                              !>>1$lose_light[0]}:
                              // default
-                                                          >>1$lose_light ;
+                                                            >>1$lose_light ;
+         /*                                                 
          $win_light[7:0] = $reset
                                                           ? 8'b00000001 :
                              >>1$win_light == 8'b10000000 && >>1$win_cnt == 21'b111111111111111111111
@@ -295,7 +296,20 @@
                                                           ? >>1$win_light * 2 :
                              // default
                                                           >>1$win_light ;
-         
+         */
+         $win_light[7:0] = $reset
+                                                          ? 8'b00000000 :
+                             >>1$win_cnt == 21'b111111111111111111111
+                                                          ? {!>>1$win_light[7],
+                                                             !>>1$win_light[6],
+                                                             !>>1$win_light[5],
+                                                             !>>1$win_light[4],
+                                                             !>>1$win_light[3],
+                                                             !>>1$win_light[2],
+                                                             !>>1$win_light[1],
+                                                             !>>1$win_light[0]}:
+                             // default
+                                                            >>1$win_light ;
          *uo_out = $light_code;
    
    // Note that pipesignals assigned here can be found under /fpga_pins/fpga.

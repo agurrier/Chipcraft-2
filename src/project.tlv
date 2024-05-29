@@ -48,27 +48,22 @@
          //MODULE 1: GET ANSWER
          $reset = *reset;
          
-         //$counter[11:0] = >>1$counter + 1;
+         $counter[11:0] = >>1$counter + 1;
          
       @1
          $valid1 = $in_b2[7:0] != 8'b0;
          
-         //$ans[11:0] = $in_pushed && (>>1$got_ans == 1'b0) && >>1$no_repeat 
-         //                                                   ? $counter[11:0] :
-         //                                                     >>1$ans[11:0] ;
-         
-         $ans[11:0] = 12'b011101000100;
-         
+         $ans[11:0] = $in_pushed && (>>1$got_ans == 1'b0) && >>1$no_repeat 
+                                                            ? $counter[11:0] :
+                                                              >>1$ans[11:0] ;
          $got_ans = $ans[11:0] != 12'b0;
          
-         /*
          $no_repeat = !($counter[11:9] == $counter[8:6] || 
                                  $counter[11:9] == $counter[5:3] || 
                                  $counter[11:9] == $counter[2:0] || 
                                  $counter[8:6] == $counter[5:3] || 
                                  $counter[8:6] == $counter[2:0] || 
                                  $counter[5:3] == $counter[2:0]) ;
-         */
          $in_pushed = $reset 
                            ? 1'b0 :
                       $valid1
@@ -308,30 +303,346 @@ module top(input logic clk, input logic reset, input logic [31:0] cyc_cnt, outpu
    m5_if_neq(m5_target, FPGA, ['logic [7:0] uio_in, uio_out, uio_oe;'])
    logic [31:0] r;  // a random value
    always @(posedge clk) r <= m5_if_defined_as(MAKERCHIP, 1, ['$urandom()'], ['0']);
-   assign ui_in = r[7:0];
+   //assign ui_in = r[7:0];
    m5_if_neq(m5_target, FPGA, ['assign uio_in = 8'b0;'])
    logic ena = 1'b0;
    logic rst_n = ! reset;
    
-   /*
+   
    // Or, to provide specific inputs at specific times (as for lab C-TB) ...
    // BE SURE TO COMMENT THE ASSIGNMENT OF INPUTS ABOVE.
    // BE SURE TO DRIVE THESE ON THE B-PHASE OF THE CLOCK (ODD STEPS).
    // Driving on the rising clock edge creates a race with the clock that has unpredictable simulation behavior.
    initial begin
+      /*
+      $guess[2:0] = $in == 8'b00000001 ? $red :
+                       $in == 8'b00000010 ? $yellow :
+                       $in == 8'b00000100 ? $green :
+                       $in == 8'b00001000 ? $blue :
+                       $in == 8'b00010000 ? $orange :
+                       $in == 8'b00100000 ? $black :
+                       $in == 8'b01000000 ? $white :
+                       //8'b10000000 ? 
+                                     $purple;
+       */
       #1  // Drive inputs on the B-phase.
          ui_in = 8'h0;
       #10 // Step 5 cycles, past reset.
-         ui_in = 8'hFF;
-      // ...etc.
+         ui_in = 8'h0;
+      #28
+      #2
+      	ui_in = 8'b10000000;
+      #6
+      	ui_in = 8'h0;
+      #200
+      #2
+      	ui_in = 8'b00010000;
+      #6
+      	ui_in = 8'h0;
+      #32
+      #2
+      	ui_in = 8'b00000100;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00000010;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00000001;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b01000000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00000001;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00010000;
+      #6
+      	ui_in = 8'h0;
+      #32
+      #2
+      	ui_in = 8'b00010000;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00000010;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00010000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00001000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00100000;
+      #2
+      	ui_in = 8'h0;
+      #20
+      #2
+      	ui_in = 8'b10000000;
+      #6
+      	ui_in = 8'h0;
+      #32
+      #2
+      	ui_in = 8'b01000000;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00100000;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00100000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b01000000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00000001;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00010000;
+      #6
+      	ui_in = 8'h0;
+      #32
+      #2
+      	ui_in = 8'b00010000;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00000010;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00010000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00001000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00100000;
+      #2
+      	ui_in = 8'h0;
+      #20
+      #2
+      	ui_in = 8'b10000000;
+      #6
+      	ui_in = 8'h0;
+      #32
+      #2
+      	ui_in = 8'b01000000;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00100000;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00100000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b01000000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00000001;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00010000;
+      #6
+      	ui_in = 8'h0;
+      #32
+      #2
+      	ui_in = 8'b00010000;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00000010;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00010000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00001000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00100000;
+      #2
+      	ui_in = 8'h0;
+      #20
+      #2
+      	ui_in = 8'b10000000;
+      #6
+      	ui_in = 8'h0;
+      #32
+      #2
+      	ui_in = 8'b01000000;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00100000;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00100000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b01000000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00000001;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00010000;
+      #6
+      	ui_in = 8'h0;
+      #32
+      #2
+      	ui_in = 8'b00010000;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00000010;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00010000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00001000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00100000;
+      #2
+      	ui_in = 8'h0;
+      #20
+      #2
+      	ui_in = 8'b10000000;
+      #6
+      	ui_in = 8'h0;
+      #32
+      #2
+      	ui_in = 8'b01000000;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00100000;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00100000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b01000000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00000001;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00010000;
+      #6
+      	ui_in = 8'h0;
+      #32
+      #2
+      	ui_in = 8'b00010000;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00000010;
+      #2
+      	ui_in = 8'h0;
+      #12
+      #2
+      	ui_in = 8'b00010000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00001000;
+      #2
+      	ui_in = 8'h0;
+      #40
+      #2
+      	ui_in = 8'b00100000;
+      #2
+      	ui_in = 8'h0;
+      
    end
-   */
+   
 
    // Instantiate the Tiny Tapeout module.
    m5_user_module_name tt(.*);
    
-   assign passed = top.cyc_cnt > 80;
-   assign failed = 1'b0;
+   assign passed = top.cyc_cnt > 1500 || !clk;
+   assign failed = 1'b0 || !clk;
 endmodule
 
 

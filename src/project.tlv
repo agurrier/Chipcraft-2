@@ -245,9 +245,9 @@
          $ndcnt1_done = !$dcnt1_done;
          $newround = $ndcnt1_done && $cnt1_done && $round != 4'b1011;
          
-         $lose = ($round == 4'b1011) && ({>>1$light_color[3:0], >>1$light_pos[3:0]} != 8'b11111111);
+         $lose = ($round == 4'b1010) && ({>>1$light_color[3:0], >>1$light_pos[3:0]} != 8'b11111111);
          $win = ({>>1$light_color[3:0], >>1$light_pos[3:0]} == 8'b11111111);
-         
+         /*
          $lose_cnt[21:0] = >>1$lose_cnt + 1;
          $win_cnt[20:0] = >>1$win_cnt + 1;
          
@@ -270,6 +270,32 @@
                                                           ? >>1$win_light * 2 :
                              // default
                                                           >>1$win_light ;
+         */
+         $lose_cnt[21:0] = >>1$lose_cnt + 1;
+         $win_cnt[20:0] = >>1$win_cnt + 1;
+         
+         $lose_light[7:0] = $reset
+                                                          ? 8'b00000000 :
+                             >>1$lose_cnt == 22'b1111111111111111111111
+                                                          ? {!>>1$lose_light[7],
+                                                             !>>1$lose_light[6],
+                                                             !>>1$lose_light[5],
+                                                             !>>1$lose_light[4],
+                                                             !>>1$lose_light[3],
+                                                             !>>1$lose_light[2],
+                                                             !>>1$lose_light[1],
+                                                             !>>1$lose_light[0]}:
+                             // default
+                                                          >>1$lose_light ;
+         $win_light[7:0] = $reset
+                                                          ? 8'b00000001 :
+                             >>1$win_light == 8'b10000000 && >>1$win_cnt == 21'b111111111111111111111
+                                                          ? 8'b00000001 :
+                             >>1$win_cnt == 21'b111111111111111111111
+                                                          ? >>1$win_light * 2 :
+                             // default
+                                                          >>1$win_light ;
+         
          *uo_out = $light_code;
    
    // Note that pipesignals assigned here can be found under /fpga_pins/fpga.

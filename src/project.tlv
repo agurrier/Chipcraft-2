@@ -53,9 +53,12 @@
       @1
          $valid1 = $in_b2[7:0] != 8'b0;
          
-         $ans[11:0] = $in_pushed && (>>1$got_ans == 1'b0) && >>1$no_repeat 
-                                                            ? $counter[11:0] :
-                                                              >>1$ans[11:0] ;
+         //$ans[11:0] = $in_pushed && (>>1$got_ans == 1'b0) && >>1$no_repeat 
+         //                                                   ? $counter[11:0] :
+         //                                                     >>1$ans[11:0] ;
+         
+         $ans[11:0] = 12'b011101000100
+         
          $got_ans = $ans[11:0] != 12'b0;
          
          $no_repeat = !($counter[11:9] == $counter[8:6] || 

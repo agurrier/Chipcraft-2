@@ -48,7 +48,7 @@
          //MODULE 1: GET ANSWER
          $reset = *reset;
          
-         $counter[11:0] = >>1$counter + 1;
+         //$counter[11:0] = >>1$counter + 1;
          
       @1
          $valid1 = $in_b2[7:0] != 8'b0;
@@ -61,12 +61,14 @@
          
          $got_ans = $ans[11:0] != 12'b0;
          
+         /*
          $no_repeat = !($counter[11:9] == $counter[8:6] || 
                                  $counter[11:9] == $counter[5:3] || 
                                  $counter[11:9] == $counter[2:0] || 
                                  $counter[8:6] == $counter[5:3] || 
                                  $counter[8:6] == $counter[2:0] || 
                                  $counter[5:3] == $counter[2:0]) ;
+         */
          $in_pushed = $reset 
                            ? 1'b0 :
                       $valid1

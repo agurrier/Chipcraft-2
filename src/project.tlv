@@ -16,7 +16,7 @@
    //-------------------------------------------------------
    // Build Target Configuration
    //
-   var(my_design, tt_um_agurrier_mastermind)   /// The name of your top-level TT module, to match your info.yml.
+   var(my_design, tt_um_example)   /// The name of your top-level TT module, to match your info.yml.
    var(target, ASIC)   /// Note, the FPGA CI flow will set this to FPGA.
    //-------------------------------------------------------
    
@@ -329,7 +329,7 @@ module top(input logic clk, input logic reset, input logic [31:0] cyc_cnt, outpu
    // Driving on the rising clock edge creates a race with the clock that has unpredictable simulation behavior.
   /* 
    initial begin
-   
+      
       
       #1  // Drive inputs on the B-phase.
          ui_in = 8'h0;

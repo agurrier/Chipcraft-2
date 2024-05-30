@@ -252,7 +252,7 @@
          $cnt1_done = $cnt1 == 3'b100;
          $dcnt1_done = >>1$cnt1_done;
          $ndcnt1_done = !$dcnt1_done;
-         $newround = $ndcnt1_done && $cnt1_done && $round != 4'b1011 && !$win;
+         $newround = $ndcnt1_done && $cnt1_done && $round != 4'b1010 && !$win;
          
          $lose = ($round == 4'b1010) && ({>>1$light_color[3:0], >>1$light_pos[3:0]} != 8'b11111111);
          $win = ({$light_color[3:0], $light_pos[3:0]} == 8'b11111111);

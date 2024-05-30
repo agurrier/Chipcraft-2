@@ -50,10 +50,11 @@
          
          $counter[11:0] = >>1$counter + 1;
          
-         $valid1 = $in_b2[7:0] != 8'b0;
+         //$valid1 = $in_b2[7:0] != 8'b0;
+         $valid1 = $in[7:0] != 8'b0;
          
       @1
-                  
+         
          $ans[11:0] = $reset
                                                             ? 12'b0 :
                       $in_pushed && (>>1$got_ans == 1'b0) && >>1$no_repeat 
@@ -74,12 +75,15 @@
                            ? 1'b1 :
                      //default
                            >>1$in_pushed;
+                           /*
          $in_release = $reset 
                            ? 1'b0 :
                       !$valid1 && $in_pushed
                            ? 1'b1 :
                      //default
                            >>1$in_release;
+                           */
+                           
          //MODULE 2: GET GUESS
          
          $valid = ($in_b2[7:0] != 8'b0) && $got_ans;
@@ -317,7 +321,8 @@ module top(input logic clk, input logic reset, input logic [31:0] cyc_cnt, outpu
    // BE SURE TO COMMENT THE ASSIGNMENT OF INPUTS ABOVE.
    // BE SURE TO DRIVE THESE ON THE B-PHASE OF THE CLOCK (ODD STEPS).
    // Driving on the rising clock edge creates a race with the clock that has unpredictable simulation behavior.
-  /* initial begin
+  /* 
+   initial begin
       
       
       #1  // Drive inputs on the B-phase.

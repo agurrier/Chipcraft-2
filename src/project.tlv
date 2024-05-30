@@ -313,18 +313,9 @@ module top(input logic clk, input logic reset, input logic [31:0] cyc_cnt, outpu
    // BE SURE TO COMMENT THE ASSIGNMENT OF INPUTS ABOVE.
    // BE SURE TO DRIVE THESE ON THE B-PHASE OF THE CLOCK (ODD STEPS).
    // Driving on the rising clock edge creates a race with the clock that has unpredictable simulation behavior.
-   initial begin
-      /*
-      $guess[2:0] = $in == 8'b00000001 ? $red :
-                       $in == 8'b00000010 ? $yellow :
-                       $in == 8'b00000100 ? $green :
-                       $in == 8'b00001000 ? $blue :
-                       $in == 8'b00010000 ? $orange :
-                       $in == 8'b00100000 ? $black :
-                       $in == 8'b01000000 ? $white :
-                       //8'b10000000 ? 
-                                     $purple;
-       */
+  /* initial begin
+      
+      
       #1  // Drive inputs on the B-phase.
          ui_in = 8'h0;
       #10 // Step 5 cycles, past reset.
@@ -634,8 +625,10 @@ module top(input logic clk, input logic reset, input logic [31:0] cyc_cnt, outpu
       	ui_in = 8'b00100000;
       #2
       	ui_in = 8'h0;
+         
       
    end
+   */
    
 
    // Instantiate the Tiny Tapeout module.

@@ -329,7 +329,7 @@ module top(input logic clk, input logic reset, input logic [31:0] cyc_cnt, outpu
    // Driving on the rising clock edge creates a race with the clock that has unpredictable simulation behavior.
   /* 
    initial begin
-      
+   
       
       #1  // Drive inputs on the B-phase.
          ui_in = 8'h0;

@@ -50,9 +50,10 @@
          
          $counter[11:0] = >>1$counter + 1;
          
-      @1
          $valid1 = $in_b2[7:0] != 8'b0;
          
+      @1
+                  
          $ans[11:0] = $in_pushed && (>>1$got_ans == 1'b0) && >>1$no_repeat 
                                                             ? $counter[11:0] :
                                                               >>1$ans[11:0] ;

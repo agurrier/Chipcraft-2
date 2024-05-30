@@ -40,18 +40,23 @@
 
 \TLV my_design()
    
-   |color
+   |mastermind
       @0
          $in[7:0] = *ui_in[7:0];
          $in_b2[7:0] = >>2$in;
+         
+         $in_hit = $in[7:0] != 8'b0;
+         $in_hit_b2 = >>2$in_hit;
+         $din_hit_b2 = >>1$in_hit_b2;
+         $ndin_hit_b2 = !$din_hit_b2;
+         $in_hit_edge = $ndin_hit_b2 && $in_hit_b2;
          
          //MODULE 1: GET ANSWER
          $reset = *reset;
          
          $counter[11:0] = >>1$counter + 1;
          
-         //$valid1 = $in_b2[7:0] != 8'b0;
-         $valid1 = $in[7:0] != 8'b0;
+         $valid1 = $in_hit_edge;
          
       @1
          
@@ -75,6 +80,7 @@
                            ? 1'b1 :
                      //default
                            >>1$in_pushed;
+         
                            /*
          $in_release = $reset 
                            ? 1'b0 :
@@ -86,7 +92,7 @@
                            
          //MODULE 2: GET GUESS
          
-         $valid = ($in_b2[7:0] != 8'b0) && $got_ans;
+         $valid = ($in_hit_edge) && $got_ans;
          $dvalid = >>1$valid;
          $ndvalid = !$dvalid;
          $in_push = $ndvalid && $valid;
@@ -329,7 +335,7 @@ module top(input logic clk, input logic reset, input logic [31:0] cyc_cnt, outpu
          ui_in = 8'h0;
       #10 // Step 5 cycles, past reset.
          ui_in = 8'h0;
-      #28
+      #200
       #2
       	ui_in = 8'b10000000;
       #6

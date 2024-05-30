@@ -54,8 +54,11 @@
          
       @1
                   
-         $ans[11:0] = $in_pushed && (>>1$got_ans == 1'b0) && >>1$no_repeat 
+         $ans[11:0] = $reset
+                                                            ? 12'b0 :
+                      $in_pushed && (>>1$got_ans == 1'b0) && >>1$no_repeat 
                                                             ? $counter[11:0] :
+                      //default
                                                               >>1$ans[11:0] ;
          $got_ans = $ans[11:0] != 12'b0;
          
@@ -93,7 +96,7 @@
          $white[2:0] = 3'b110;
          $purple[2:0] = 3'b111;
          
-         $guess[2:0] = $in_b2 == 8'b00000001 ? $red :
+         $guess[2:0] = $in_b2 == 8'b00000001 ? $red : //$in_b2[0] ? $red :
                        $in_b2 == 8'b00000010 ? $yellow :
                        $in_b2 == 8'b00000100 ? $green :
                        $in_b2 == 8'b00001000 ? $blue :
@@ -257,7 +260,7 @@
                                                              !>>1$lose_light[3],
                                                              !>>1$lose_light[2],
                                                              !>>1$lose_light[1],
-                                                             !>>1$lose_light[0]}:
+                                                             !>>1$lose_light[0]}: //~ for not
                              // default
                                                             >>1$lose_light ;
          
